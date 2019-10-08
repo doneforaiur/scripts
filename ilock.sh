@@ -1,10 +1,10 @@
 #!/bin/bash
-PICTURE=/tmp/i3lock.png
+
+PICTURE=/tmp/ilock.png
 SCREENSHOT="scrot $PICTURE"
 
-BLUR="8x8"
-
 $SCREENSHOT
-convert $PICTURE -blur $BLUR $PICTURE
+
+convert $PICTURE -scale 20% -blur 0x1 -resize 500% $PICTURE
 i3lock -i $PICTURE
 rm $PICTURE
