@@ -1,21 +1,29 @@
 #!/bin/bash
 # Launch gedit, okular and start re-compiling tex file whenever .tex file is updated.
 
-usage="$(basename "$0") Usage; [-o | -only_tex FILE] 
-		  [-a | -all_files FILE] 
-		  [-h | -help] 
+usage="Dijital 2019   Mirza Atlı
 
-	-o -only_tex   Recompile when only .tex files updated [DEFAULT]
-	-a -all_files  Recompile when any files updated    
-	-h -help       Show this help text"
+[-o | -only_tex  FILE] 
+[-a | -all_files FILE] 
+[-h | -help] 
+
+-o -only_tex   Recompile when only .tex files updated [DEFAULT]
+-a -all_files  Recompile when any files updated    
+-h -help       Show this help text"
 
 only_tex='true'
-
-while getopts ':ho:a:' option; do
+FILE=$1
+while getopts ':hoa' option; do
   case $option in
     'h' | 'help') echo "$usage"; exit;;
-    'o' | 'only_tex') OT=true; shift ;;
-	'a' | 'all_files') OT=false; shift ;;
+    'o' | 'only_tex') only_tex=true
+					  FILE="$2"
+					  shift 2
+					  ;;
+	'a' | 'all_files') only_tex=false
+					   FILE="$2"
+					   shift 2
+					   ;;
 
     ':') printf "missing argument for -%s\n" "$OPTARG" >&2
        echo "$usage" >&2
@@ -26,22 +34,23 @@ while getopts ':ho:a:' option; do
        exit 1
        ;;
   esac
+	shift $((OPTIND -1))
 done
 
-if [ -z "$1" ]
+if [ -z "$FILE" ]
 then
 	echo "You have to specify which file to process."
 else
-	if [ -e "$1.tex" ] && [ -e "$1.pdf" ]
+	if [ -e "$FILE.tex" ] && [ -e "$FILE.pdf" ]
 	then
 		xdotool key 'alt+shift+0' &
-		gedit $1.tex &
-		okular $1.pdf &
-		if [ $OT ]
+		gedit $FILE.tex &
+		okular $FILE.pdf &
+		if [ $only_tex = true ]
 		then 
-			ls *.tex | entr pdflatex $1.tex
+			ls *.tex | entr pdflatex $FILE.tex
 		else		
-			ls * | entr pdflatex $1.tex
+			ls * | entr pdflatex $FILE.tex
 		fi
 	else
 		echo "Either .PDF or .TEX files are missing."
@@ -49,16 +58,16 @@ else
 		read user_input
 		if [ $user_input == 'Y' ]
 		then
-			touch $1.tex $1.pdf & 
+			touch $FILE.tex $FILE.pdf & 
 			xdotool key 'alt+shift+0' &
-			gedit $1.tex &
-			convert xc:none -page A4 $1.pdf &
-			okular $1.pdf &		
-			if [ $OT ]
+			gedit $FILE.tex &
+			convert xc:none -page A4 $FILE.pdf &
+			okular $FILE.pdf &		
+			if [ $only_tex = true ]
 			then 
-				ls *.tex | entr pdflatex $1.tex
+				ls *.tex | entr pdflatex $FILE.tex
 			else		
-				ls * | entr pdflatex $1.tex
+				ls * | entr pdflatex $FILE.tex
 			fi
 		else
 			exit 0
