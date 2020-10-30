@@ -1,0 +1,9 @@
+#!/bin/bash
+
+[ -z $1 ] && set -- "--name"
+
+[ $1 == "--name" ] && kitap=$(ls -d ~/kitaplar/*.{pdf,epub} | sed 's/.*\///;s/\.[^.]*$//' | dmenu -l 25 -p "..." -i -nb "#101010" -sb "#000035" -nf "#606060")
+
+[ $1 == "--author" ] && kitap=$(ls -d ~/kitaplar/*.{pdf,epub} | sed 's/.*\///;s/\.[^.]*$//' | awk -F ' - ' '{print $2 FS $1}' | dmenu -l 25 -p "..." -i -nb "#101010" -sb "#000035" -nf "#606060" | awk -F ' - ' '{print $2 FS $1}')
+
+[ -z "$kitap" ] || mupdf ~/kitaplar/"$kitap"* & disown;
